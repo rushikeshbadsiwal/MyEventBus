@@ -2,6 +2,7 @@ package MyEventBus;
 
 import MyEventBus.Event.TeamDowngradeToFreeEvent;
 import MyEventBus.Event.TeamUpgradeToProEvent;
+import MyEventBus.Event.TestEvent;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -15,5 +16,11 @@ public class Main {
         eventBus.post(new TeamUpgradeToProEvent("No Reflection"));
         eventBusUsingReflection.post(new TeamDowngradeToFreeEvent("Using Reflection"));
         eventBus.post(new TeamUpgradeToProEvent("Using Reflection"));
+
+        eventBus.post(new TestEvent("TestEvent"))
+                .exceptionally(ex -> {
+                    System.out.println("Exception handled " + ex);
+                    return null;
+                });
     }
 }
