@@ -1,5 +1,6 @@
 package MyEventBus;
 
+import MyEventBus.Annotation.Subscribe;
 import MyEventBus.Event.TeamDowngradeToFreeEvent;
 import MyEventBus.Event.TeamUpgradeToProEvent;
 
@@ -8,18 +9,16 @@ import java.util.concurrent.CompletionStage;
 
 public class NotificationDispatcher {
 
-    NotificationDispatcher(EventBus eventBus) {
+    NotificationDispatcher(EventBus eventBus, EventBusUsingReflection eventBusUsingReflection) {
         eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree((TeamDowngradeToFreeEvent) event));
         eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree2((TeamDowngradeToFreeEvent) event));
         eventBus.register(TeamUpgradeToProEvent.class, (event) -> onTeamUpgrade((TeamUpgradeToProEvent) event));
+        eventBusUsingReflection.register(this);
     }
 
     private CompletionStage<Void> onTeamDowngradeToFree(TeamDowngradeToFreeEvent event) {
         System.out.println("Event handled " + event);
-        return CompletableFuture.completedFuture(null)
-                .thenAccept(__ -> {
-                    throw new RuntimeException("dfs");
-                });
+        return CompletableFuture.completedFuture(null);
     }
 
     private CompletionStage<Void> onTeamDowngradeToFree2(TeamDowngradeToFreeEvent event) {
@@ -27,8 +26,16 @@ public class NotificationDispatcher {
         return CompletableFuture.completedFuture(null);
     }
 
-    private CompletionStage<Void> onTeamUpgrade(TeamUpgradeToProEvent event) {
-        System.out.println("Event handled  " + event);
+
+    @Subscribe
+    public CompletionStage<Void> onTeamUpgrade(TeamUpgradeToProEvent event) {
+        System.out.println("Event handled " + event);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Subscribe
+    public CompletionStage<Void> onTeamDowngradeToFree3(TeamDowngradeToFreeEvent event) {
+        System.out.println("Event handled " + event);
         return CompletableFuture.completedFuture(null);
     }
 
