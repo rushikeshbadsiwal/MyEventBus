@@ -9,14 +9,17 @@ import java.util.concurrent.CompletionStage;
 public class NotificationDispatcher {
 
     NotificationDispatcher(EventBus eventBus) {
-        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree((TeamDowngradeToFreeEvent)event));
-        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree2((TeamDowngradeToFreeEvent)event));
+        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree((TeamDowngradeToFreeEvent) event));
+        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree2((TeamDowngradeToFreeEvent) event));
         eventBus.register(TeamUpgradeToProEvent.class, (event) -> onTeamUpgrade((TeamUpgradeToProEvent) event));
     }
 
     private CompletionStage<Void> onTeamDowngradeToFree(TeamDowngradeToFreeEvent event) {
         System.out.println("Event handled " + event);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(null)
+                .thenAccept(__ -> {
+                    throw new RuntimeException("dfs");
+                });
     }
 
     private CompletionStage<Void> onTeamDowngradeToFree2(TeamDowngradeToFreeEvent event) {

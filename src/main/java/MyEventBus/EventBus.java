@@ -7,8 +7,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class EventBus <T extends EventBus.Event>{
+public class EventBus<T extends EventBus.Event> {
 
 
     private final ConcurrentHashMap<Class<?>, List<Function<T, CompletionStage<Void>>>> listenerMethods;
@@ -25,13 +26,22 @@ public class EventBus <T extends EventBus.Event>{
 
     public CompletionStage<Void> post(T e) {
         listenerMethods.computeIfAbsent(e.getClass(), __ -> new ArrayList<>());
-        listenerMethods.get(e.getClass()).forEach(f -> f.apply(e));
-        return CompletableFuture.completedFuture(null);
+        return allOf(listenerMethods.get(e.getClass()).stream().map(f -> f.apply(e)).collect(Collectors.toList()))
+                .thenApply(__ -> null);
     }
 
     public void unregister(Object object) {
     }
 
     public interface Event {
+    }
+
+    private static <T> CompletionStage<List<T>> allOf(final List<CompletionStage<T>> futures) {
+        return CompletableFuture.allOf(futures.stream().map(CompletionStage::toCompletableFuture).toArray(CompletableFuture[]::new))
+                .thenApply(__ -> {
+                    final List<T> list = new ArrayList<>();
+                    futures.forEach(future -> future.thenAccept(list::add));
+                    return list;
+                });
     }
 }
