@@ -1,8 +1,6 @@
 package MyEventBus.Event;
 
-import MyEventBus.EventBus;
-
-public class TestEvent implements EventBus.Event {
+public class TestEvent {
     private String name;
 
     public TestEvent(String name) {

@@ -10,27 +10,21 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-//Event interface
+public class EventBus {
 
-public class EventBus<T extends EventBus.Event> {
+    private static final HashMap<Class<?>, List<Function<Object, CompletionStage<Void>>>> listenerMethods = new HashMap<>();
 
-    private final HashMap<Class<?>, List<Function<T, CompletionStage<Void>>>> listenerMethods;
-
-    public EventBus() {
-        this.listenerMethods = new HashMap<>();
+    private EventBus() {
     }
 
-    public synchronized void register(Class<T> e, Function<T, CompletionStage<Void>> f) {
-        listenerMethods.computeIfAbsent(e, __ -> new ArrayList<>()).add(f);
+    public static synchronized <T> void register(Class<T> e, Function<T, CompletionStage<Void>> f) {
+        listenerMethods.computeIfAbsent(e, __ -> new ArrayList<>()).add((Function<Object, CompletionStage<Void>>) f);
     }
 
-    public CompletionStage<Void> post(T e) {
+    public static <T> CompletionStage<Void> post(T e) {
         return CompletableFuture.completedFuture(null)
-                .thenCompose(__ -> CompletableFuture.allOf(listenerMethods.computeIfAbsent(e.getClass(), v -> {
+                .thenCompose(__ -> CompletableFuture.allOf(listenerMethods.computeIfAbsent(e.getClass(), k -> {
                     throw new NoListenerRegisteredException("No listener found for " + e);
                 }).stream().map(f -> f.apply(e).toCompletableFuture()).toArray(CompletableFuture[]::new)));
-    }
-
-    public interface Event {
     }
 }

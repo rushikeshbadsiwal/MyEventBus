@@ -9,11 +9,10 @@ import java.util.concurrent.CompletionStage;
 
 public class NotificationDispatcher {
 
-    NotificationDispatcher(EventBus eventBus, EventBusUsingReflection eventBusUsingReflection) {
-        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree((TeamDowngradeToFreeEvent) event));
-        eventBus.register(TeamDowngradeToFreeEvent.class, (event) -> onTeamDowngradeToFree2((TeamDowngradeToFreeEvent) event));
-        eventBus.register(TeamUpgradeToProEvent.class, (event) -> onTeamUpgrade((TeamUpgradeToProEvent) event));
-        eventBusUsingReflection.register(this);
+    NotificationDispatcher() {
+        EventBus.register(TeamDowngradeToFreeEvent.class, this::onTeamDowngradeToFree);
+        EventBus.register(TeamDowngradeToFreeEvent.class, this::onTeamDowngradeToFree2);
+        EventBus.register(TeamUpgradeToProEvent.class, this::onTeamUpgrade);
     }
 
     private CompletionStage<Void> onTeamDowngradeToFree(TeamDowngradeToFreeEvent event) {

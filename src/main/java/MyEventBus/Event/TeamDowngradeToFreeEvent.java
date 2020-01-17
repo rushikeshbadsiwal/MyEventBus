@@ -1,8 +1,6 @@
 package MyEventBus.Event;
 
-import MyEventBus.EventBus;
-
-public class TeamDowngradeToFreeEvent implements EventBus.Event {
+public class TeamDowngradeToFreeEvent {
     private String name;
 
     public TeamDowngradeToFreeEvent(String name) {
